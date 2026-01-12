@@ -4,6 +4,7 @@ import { PlusIcon, EyeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/ou
 import InvoiceModal from '@/Components/InvoiceModal';
 import PayoutModal from '@/Components/PayoutModal';
 import ConfirmDeleteModal from '@/Components/ConfirmDeleteModal';
+import toast from 'react-hot-toast';
 
 export default function PaymentsTab({ client, payments, partners, auth }) {
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -62,8 +63,12 @@ export default function PaymentsTab({ client, payments, partners, auth }) {
             router.get(`/delete_invoice?id=${itemToDelete.id}`, {}, {
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('Payment deleted successfully!');
                     setShowDeleteModal(false);
                     setItemToDelete(null);
+                },
+                onError: () => {
+                    toast.error('Failed to delete payment.');
                 },
             });
         }

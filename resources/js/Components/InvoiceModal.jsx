@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import Modal from './Modal';
-import InputLabel from './InputLabel';
-import TextInput from './TextInput';
 import PrimaryButton from './PrimaryButton';
 import InputError from './InputError';
+import toast from 'react-hot-toast';
 
 export default function InvoiceModal({ show, onClose, client, invoice = null, partners = [] }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -71,8 +70,12 @@ export default function InvoiceModal({ show, onClose, client, invoice = null, pa
             router.post('/store_update_payment', updateData, {
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('Invoice updated successfully!');
                     onClose();
                     reset();
+                },
+                onError: () => {
+                    toast.error('Failed to update invoice. Please check the form for errors.');
                 },
             });
         } else {
@@ -80,8 +83,12 @@ export default function InvoiceModal({ show, onClose, client, invoice = null, pa
             post('/insert_payment', {
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('Invoice created successfully!');
                     onClose();
                     reset();
+                },
+                onError: () => {
+                    toast.error('Failed to create invoice. Please check the form for errors.');
                 },
             });
         }
@@ -133,22 +140,26 @@ export default function InvoiceModal({ show, onClose, client, invoice = null, pa
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <InputLabel htmlFor="inv_no" value="Invoice No" />
-                        <TextInput
+                        <label htmlFor="inv_no" className="block text-sm font-medium text-gray-700 mb-1">
+                            Invoice No
+                        </label>
+                        <input
                             id="inv_no"
                             type="number"
-                            className="mt-1 block w-full"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.inv_no}
                             onChange={(e) => setData('inv_no', e.target.value)}
                         />
-                        <InputError message={errors.inv_no} className="mt-2" />
+                        <InputError message={errors.inv_no} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="status" value="Status" />
+                        <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+                            Status
+                        </label>
                         <select
                             id="status"
-                            className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.status}
                             onChange={(e) => setData('status', e.target.value)}
                         >
@@ -158,38 +169,44 @@ export default function InvoiceModal({ show, onClose, client, invoice = null, pa
                             <option value="Overdue">Overdue</option>
                             <option value="Cancelled">Cancelled</option>
                         </select>
-                        <InputError message={errors.status} className="mt-2" />
+                        <InputError message={errors.status} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="indate" value="Date" />
-                        <TextInput
+                        <label htmlFor="indate" className="block text-sm font-medium text-gray-700 mb-1">
+                            Date
+                        </label>
+                        <input
                             id="indate"
                             type="date"
-                            className="mt-1 block w-full"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.indate}
                             onChange={(e) => setData('indate', e.target.value)}
                         />
-                        <InputError message={errors.indate} className="mt-2" />
+                        <InputError message={errors.indate} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="due_date" value="Due Date" />
-                        <TextInput
+                        <label htmlFor="due_date" className="block text-sm font-medium text-gray-700 mb-1">
+                            Due Date
+                        </label>
+                        <input
                             id="due_date"
                             type="date"
-                            className="mt-1 block w-full"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.due_date}
                             onChange={(e) => setData('due_date', e.target.value)}
                         />
-                        <InputError message={errors.due_date} className="mt-2" />
+                        <InputError message={errors.due_date} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="uto" value="To (Partner)" />
+                        <label htmlFor="uto" className="block text-sm font-medium text-gray-700 mb-1">
+                            To (Partner)
+                        </label>
                         <select
                             id="uto"
-                            className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.uto}
                             onChange={handlePartnerChange}
                         >
@@ -200,105 +217,121 @@ export default function InvoiceModal({ show, onClose, client, invoice = null, pa
                                 </option>
                             ))}
                         </select>
-                        <InputError message={errors.uto} className="mt-2" />
+                        <InputError message={errors.uto} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="desc_de" value="For (Description)" />
-                        <TextInput
+                        <label htmlFor="desc_de" className="block text-sm font-medium text-gray-700 mb-1">
+                            For (Description)
+                        </label>
+                        <input
                             id="desc_de"
-                            className="mt-1 block w-full"
+                            type="text"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.desc_de}
                             onChange={(e) => setData('desc_de', e.target.value)}
                         />
-                        <InputError message={errors.desc_de} className="mt-2" />
+                        <InputError message={errors.desc_de} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="amount" value="Amount" />
-                        <TextInput
+                        <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+                            Amount
+                        </label>
+                        <input
                             id="amount"
                             type="number"
                             step="0.01"
-                            className="mt-1 block w-full"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.amount}
                             onChange={(e) => setData('amount', e.target.value)}
                         />
-                        <InputError message={errors.amount} className="mt-2" />
+                        <InputError message={errors.amount} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="vat" value="VAT" />
-                        <TextInput
+                        <label htmlFor="vat" className="block text-sm font-medium text-gray-700 mb-1">
+                            VAT
+                        </label>
+                        <input
                             id="vat"
                             type="number"
                             step="0.01"
-                            className="mt-1 block w-full"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.vat}
                             onChange={(e) => setData('vat', e.target.value)}
                         />
-                        <InputError message={errors.vat} className="mt-2" />
+                        <InputError message={errors.vat} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="total" value="Total" />
-                        <TextInput
+                        <label htmlFor="total" className="block text-sm font-medium text-gray-700 mb-1">
+                            Total
+                        </label>
+                        <input
                             id="total"
                             type="number"
                             step="0.01"
-                            className="mt-1 block w-full bg-gray-50"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-600 sm:text-sm cursor-not-allowed"
                             value={data.total}
                             readOnly
                         />
-                        <InputError message={errors.total} className="mt-2" />
+                        <InputError message={errors.total} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="date_paid" value="Date Paid" />
-                        <TextInput
+                        <label htmlFor="date_paid" className="block text-sm font-medium text-gray-700 mb-1">
+                            Date Paid
+                        </label>
+                        <input
                             id="date_paid"
                             type="date"
-                            className="mt-1 block w-full"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.date_paid}
                             onChange={(e) => setData('date_paid', e.target.value)}
                         />
-                        <InputError message={errors.date_paid} className="mt-2" />
+                        <InputError message={errors.date_paid} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="clawed_date" value="Clawed Back Date" />
-                        <TextInput
+                        <label htmlFor="clawed_date" className="block text-sm font-medium text-gray-700 mb-1">
+                            Clawed Back Date
+                        </label>
+                        <input
                             id="clawed_date"
                             type="date"
-                            className="mt-1 block w-full"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.clawed_date}
                             onChange={(e) => setData('clawed_date', e.target.value)}
                         />
-                        <InputError message={errors.clawed_date} className="mt-2" />
+                        <InputError message={errors.clawed_date} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="chq_no" value="Cheque No" />
-                        <TextInput
+                        <label htmlFor="chq_no" className="block text-sm font-medium text-gray-700 mb-1">
+                            Cheque No
+                        </label>
+                        <input
                             id="chq_no"
-                            className="mt-1 block w-full"
+                            type="text"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.chq_no}
                             onChange={(e) => setData('chq_no', e.target.value)}
                         />
-                        <InputError message={errors.chq_no} className="mt-2" />
+                        <InputError message={errors.chq_no} className="mt-1" />
                     </div>
                 </div>
 
-                <div className="flex justify-end gap-3 mt-6">
+                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="px-6 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                     >
                         Cancel
                     </button>
-                    <PrimaryButton disabled={processing}>
-                        {processing ? 'Saving...' : invoice ? 'Update Invoice' : 'Create Invoice'}
+                    <PrimaryButton disabled={processing} className="px-6 py-2.5">
+                        {processing ? 'Saving...' : invoice ? 'UPDATE INVOICE' : 'CREATE INVOICE'}
                     </PrimaryButton>
                 </div>
             </form>

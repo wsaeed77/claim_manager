@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
-import Datepicker from 'react-tailwindcss-datepicker';
+import DateInput from '@/Components/DateInput';
 import WitnessModal from '@/Components/WitnessModal';
 import ShowWitnessModal from '@/Components/ShowWitnessModal';
+import toast from 'react-hot-toast';
 
 export default function AccidentForm({ client, className = '' }) {
     const [expandedSections, setExpandedSections] = useState({
@@ -45,8 +46,8 @@ export default function AccidentForm({ client, className = '' }) {
         }));
     };
 
-    const handleDateChange = (name, newValue) => {
-        setData(name, newValue.startDate);
+    const handleDateChange = (name, value) => {
+        setData(name, value);
     };
 
     const submit = (e) => {
@@ -54,7 +55,10 @@ export default function AccidentForm({ client, className = '' }) {
         post('/updateclaim', {
             preserveScroll: true,
             onSuccess: () => {
-                // Optionally show a success message
+                toast.success('Accident information updated successfully!');
+            },
+            onError: () => {
+                toast.error('Failed to update accident information. Please check the form for errors.');
             },
         });
     };
@@ -83,13 +87,9 @@ export default function AccidentForm({ client, className = '' }) {
                         </label>
                         <div className="flex gap-2 items-start">
                             <div className="flex-1">
-                                <Datepicker
-                                    primaryColor={"indigo"}
-                                    value={{ startDate: data.accident_date, endDate: data.accident_date }}
-                                    onChange={(newValue) => handleDateChange('accident_date', newValue)}
-                                    asSingle={true}
-                                    useRange={false}
-                                    inputClassName="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                <DateInput
+                                    value={data.accident_date}
+                                    onChange={(value) => handleDateChange('accident_date', value)}
                                 />
                             </div>
                             <div className="flex-1">

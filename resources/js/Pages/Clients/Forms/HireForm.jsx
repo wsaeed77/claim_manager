@@ -3,7 +3,8 @@ import { useForm, router, Link } from '@inertiajs/react';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
-import Datepicker from 'react-tailwindcss-datepicker';
+import DateInput from '@/Components/DateInput';
+import toast from 'react-hot-toast';
 
 export default function HireForm({ client, partners, className = '' }) {
     const [expandedSections, setExpandedSections] = useState({
@@ -55,8 +56,8 @@ export default function HireForm({ client, partners, className = '' }) {
         }));
     };
 
-    const handleDateChange = (name, newValue) => {
-        setData(name, newValue.startDate);
+    const handleDateChange = (name, value) => {
+        setData(name, value);
     };
 
     const submit = (e) => {
@@ -64,7 +65,10 @@ export default function HireForm({ client, partners, className = '' }) {
         post('/updateclaim', {
             preserveScroll: true,
             onSuccess: () => {
-                // Optionally show a success message
+                toast.success('Hire information updated successfully!');
+            },
+            onError: () => {
+                toast.error('Failed to update hire information. Please check the form for errors.');
             },
         });
     };
@@ -199,14 +203,12 @@ export default function HireForm({ client, partners, className = '' }) {
                             Start Date
                         </label>
                         <div className="flex gap-2">
-                            <Datepicker
-                                primaryColor={"indigo"}
-                                value={{ startDate: data.hire_sdate, endDate: data.hire_sdate }}
-                                onChange={(newValue) => handleDateChange('hire_sdate', newValue)}
-                                asSingle={true}
-                                useRange={false}
-                                inputClassName="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                            />
+                            <div className="flex-1">
+                                <DateInput
+                                    value={data.hire_sdate}
+                                    onChange={(value) => handleDateChange('hire_sdate', value)}
+                                />
+                            </div>
                             <input
                                 type="checkbox"
                                 className="mt-2"
@@ -220,14 +222,12 @@ export default function HireForm({ client, partners, className = '' }) {
                             End Date
                         </label>
                         <div className="flex gap-2">
-                            <Datepicker
-                                primaryColor={"indigo"}
-                                value={{ startDate: data.hire_edate, endDate: data.hire_edate }}
-                                onChange={(newValue) => handleDateChange('hire_edate', newValue)}
-                                asSingle={true}
-                                useRange={false}
-                                inputClassName="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                            />
+                            <div className="flex-1">
+                                <DateInput
+                                    value={data.hire_edate}
+                                    onChange={(value) => handleDateChange('hire_edate', value)}
+                                />
+                            </div>
                             <input
                                 type="checkbox"
                                 className="mt-2"
@@ -404,13 +404,9 @@ export default function HireForm({ client, partners, className = '' }) {
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Delivery Date
                                             </label>
-                                            <Datepicker
-                                                primaryColor={"indigo"}
-                                                value={{ startDate: data.hirehd_ddate, endDate: data.hirehd_ddate }}
-                                                onChange={(newValue) => handleDateChange('hirehd_ddate', newValue)}
-                                                asSingle={true}
-                                                useRange={false}
-                                                inputClassName="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            <DateInput
+                                                value={data.hirehd_ddate}
+                                                onChange={(value) => handleDateChange('hirehd_ddate', value)}
                                             />
                                             <InputError message={errors.hirehd_ddate} className="mt-2" />
                                         </div>
@@ -419,13 +415,9 @@ export default function HireForm({ client, partners, className = '' }) {
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Agreed Collection Date
                                             </label>
-                                            <Datepicker
-                                                primaryColor={"indigo"}
-                                                value={{ startDate: data.hirehd_cdate, endDate: data.hirehd_cdate }}
-                                                onChange={(newValue) => handleDateChange('hirehd_cdate', newValue)}
-                                                asSingle={true}
-                                                useRange={false}
-                                                inputClassName="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            <DateInput
+                                                value={data.hirehd_cdate}
+                                                onChange={(value) => handleDateChange('hirehd_cdate', value)}
                                             />
                                             <InputError message={errors.hirehd_cdate} className="mt-2" />
                                         </div>
@@ -434,13 +426,9 @@ export default function HireForm({ client, partners, className = '' }) {
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Hire End Date
                                             </label>
-                                            <Datepicker
-                                                primaryColor={"indigo"}
-                                                value={{ startDate: data.hirehd_edate, endDate: data.hirehd_edate }}
-                                                onChange={(newValue) => handleDateChange('hirehd_edate', newValue)}
-                                                asSingle={true}
-                                                useRange={false}
-                                                inputClassName="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            <DateInput
+                                                value={data.hirehd_edate}
+                                                onChange={(value) => handleDateChange('hirehd_edate', value)}
                                             />
                                             <InputError message={errors.hirehd_edate} className="mt-2" />
                                         </div>
@@ -449,13 +437,9 @@ export default function HireForm({ client, partners, className = '' }) {
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Collection Date/Time
                                             </label>
-                                            <Datepicker
-                                                primaryColor={"indigo"}
-                                                value={{ startDate: data.hirehd_colection, endDate: data.hirehd_colection }}
-                                                onChange={(newValue) => handleDateChange('hirehd_colection', newValue)}
-                                                asSingle={true}
-                                                useRange={false}
-                                                inputClassName="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            <DateInput
+                                                value={data.hirehd_colection}
+                                                onChange={(value) => handleDateChange('hirehd_colection', value)}
                                             />
                                             <InputError message={errors.hirehd_colection} className="mt-2" />
                                         </div>

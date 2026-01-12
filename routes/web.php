@@ -59,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/export', [SearchController::class, 'export'])->name('export.index');
 
     // Partners
+    Route::get('/partners/all', [PartnerController::class, 'getPartners'])->name('partner.all');
     Route::get('/partners', [PartnerController::class, 'index'])->name('partner.index');
     Route::get('/partner/{id}/edit', [PartnerController::class, 'update'])->name('partner.update');
     Route::get('/partner-name/{name}/edit', [PartnerController::class, 'update'])->name('partner.update.name');

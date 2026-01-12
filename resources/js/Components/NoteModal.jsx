@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import Modal from './Modal';
-import InputLabel from './InputLabel';
-import TextInput from './TextInput';
 import PrimaryButton from './PrimaryButton';
 import InputError from './InputError';
+import toast from 'react-hot-toast';
 
 export default function NoteModal({ show, onClose, client, note = null, users = [] }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -56,8 +55,12 @@ export default function NoteModal({ show, onClose, client, note = null, users = 
             router.post('/update_note', { ...submitData, id: note.id }, {
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('Note updated successfully!');
                     onClose();
                     reset();
+                },
+                onError: () => {
+                    toast.error('Failed to update note. Please check the form for errors.');
                 },
             });
         } else {
@@ -65,8 +68,12 @@ export default function NoteModal({ show, onClose, client, note = null, users = 
             post('/add_note', {
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('Note added successfully!');
                     onClose();
                     reset();
+                },
+                onError: () => {
+                    toast.error('Failed to add note. Please check the form for errors.');
                 },
             });
         }
@@ -82,34 +89,40 @@ export default function NoteModal({ show, onClose, client, note = null, users = 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <InputLabel htmlFor="note_date" value="Date" />
-                        <TextInput
+                        <label htmlFor="note_date" className="block text-sm font-medium text-gray-700 mb-1">
+                            Date
+                        </label>
+                        <input
                             id="note_date"
                             type="date"
-                            className="mt-1 block w-full"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.note_date}
                             onChange={(e) => setData('note_date', e.target.value)}
                         />
-                        <InputError message={errors.note_date} className="mt-2" />
+                        <InputError message={errors.note_date} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="note_time" value="Time" />
-                        <TextInput
+                        <label htmlFor="note_time" className="block text-sm font-medium text-gray-700 mb-1">
+                            Time
+                        </label>
+                        <input
                             id="note_time"
                             type="time"
-                            className="mt-1 block w-full"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.note_time}
                             onChange={(e) => setData('note_time', e.target.value)}
                         />
-                        <InputError message={errors.note_time} className="mt-2" />
+                        <InputError message={errors.note_time} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="dealt_by" value="Dealt By" />
+                        <label htmlFor="dealt_by" className="block text-sm font-medium text-gray-700 mb-1">
+                            Dealt By
+                        </label>
                         <select
                             id="dealt_by"
-                            className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.dealt_by}
                             onChange={(e) => setData('dealt_by', e.target.value)}
                         >
@@ -120,14 +133,16 @@ export default function NoteModal({ show, onClose, client, note = null, users = 
                                 </option>
                             ))}
                         </select>
-                        <InputError message={errors.dealt_by} className="mt-2" />
+                        <InputError message={errors.dealt_by} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="importance" value="Importance" />
+                        <label htmlFor="importance" className="block text-sm font-medium text-gray-700 mb-1">
+                            Importance
+                        </label>
                         <select
                             id="importance"
-                            className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.importance}
                             onChange={(e) => setData('importance', e.target.value)}
                         >
@@ -136,14 +151,16 @@ export default function NoteModal({ show, onClose, client, note = null, users = 
                             <option value="high">High</option>
                             <option value="urgent">Urgent</option>
                         </select>
-                        <InputError message={errors.importance} className="mt-2" />
+                        <InputError message={errors.importance} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="method" value="Method" />
+                        <label htmlFor="method" className="block text-sm font-medium text-gray-700 mb-1">
+                            Method
+                        </label>
                         <select
                             id="method"
-                            className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.method}
                             onChange={(e) => setData('method', e.target.value)}
                         >
@@ -157,55 +174,63 @@ export default function NoteModal({ show, onClose, client, note = null, users = 
                             <option value="Meeting">Meeting</option>
                             <option value="Other">Other</option>
                         </select>
-                        <InputError message={errors.method} className="mt-2" />
+                        <InputError message={errors.method} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="with" value="With" />
-                        <TextInput
+                        <label htmlFor="with" className="block text-sm font-medium text-gray-700 mb-1">
+                            With
+                        </label>
+                        <input
                             id="with"
-                            className="mt-1 block w-full"
+                            type="text"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.with}
                             onChange={(e) => setData('with', e.target.value)}
                             placeholder="e.g., Solicitors - KQ"
                         />
-                        <InputError message={errors.with} className="mt-2" />
+                        <InputError message={errors.with} className="mt-1" />
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="name" value="Name" />
-                        <TextInput
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                            Name
+                        </label>
+                        <input
                             id="name"
-                            className="mt-1 block w-full"
+                            type="text"
+                            className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
                         />
-                        <InputError message={errors.name} className="mt-2" />
+                        <InputError message={errors.name} className="mt-1" />
                     </div>
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="details" value="Details" />
+                    <label htmlFor="details" className="block text-sm font-medium text-gray-700 mb-1">
+                        Details
+                    </label>
                     <textarea
                         id="details"
                         rows={4}
-                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                        className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors"
                         value={data.details}
                         onChange={(e) => setData('details', e.target.value)}
                     ></textarea>
-                    <InputError message={errors.details} className="mt-2" />
+                    <InputError message={errors.details} className="mt-1" />
                 </div>
 
-                <div className="flex justify-end gap-3 mt-6">
+                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="px-6 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                     >
                         Cancel
                     </button>
-                    <PrimaryButton disabled={processing}>
-                        {processing ? 'Saving...' : note ? 'Update Note' : 'Create Note'}
+                    <PrimaryButton disabled={processing} className="px-6 py-2.5">
+                        {processing ? 'Saving...' : note ? 'UPDATE NOTE' : 'CREATE NOTE'}
                     </PrimaryButton>
                 </div>
             </form>

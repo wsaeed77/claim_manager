@@ -4,7 +4,8 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
-import Datepicker from 'react-tailwindcss-datepicker';
+import DateInput from '@/Components/DateInput';
+import toast from 'react-hot-toast';
 
 export default function PiForm({ client, className = '' }) {
     const [expandedSections, setExpandedSections] = useState({
@@ -84,8 +85,8 @@ export default function PiForm({ client, className = '' }) {
         }));
     };
 
-    const handleDateChange = (name, newValue) => {
-        setData(name, newValue.startDate);
+    const handleDateChange = (name, value) => {
+        setData(name, value);
     };
 
     const submit = (e) => {
@@ -93,7 +94,10 @@ export default function PiForm({ client, className = '' }) {
         post(route('home.updateclaim'), {
             preserveScroll: true,
             onSuccess: () => {
-                // Optionally show a success message
+                toast.success('Personal Injury information updated successfully!');
+            },
+            onError: () => {
+                toast.error('Failed to update personal injury information. Please check the form for errors.');
             },
         });
     };
@@ -221,13 +225,9 @@ export default function PiForm({ client, className = '' }) {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Date Of Attendance?
                         </label>
-                        <Datepicker
-                            primaryColor={"indigo"}
-                            value={{ startDate: data.pi_medfdate, endDate: data.pi_medfdate }}
-                            onChange={(newValue) => handleDateChange('pi_medfdate', newValue)}
-                            asSingle={true}
-                            useRange={false}
-                            inputClassName="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        <DateInput
+                            value={data.pi_medfdate}
+                            onChange={(value) => handleDateChange('pi_medfdate', value)}
                         />
                         <InputError message={errors.pi_medfdate} className="mt-2" />
                     </div>
@@ -253,13 +253,9 @@ export default function PiForm({ client, className = '' }) {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Date Of Attendance?
                         </label>
-                        <Datepicker
-                            primaryColor={"indigo"}
-                            value={{ startDate: data.pi_hospfdate, endDate: data.pi_hospfdate }}
-                            onChange={(newValue) => handleDateChange('pi_hospfdate', newValue)}
-                            asSingle={true}
-                            useRange={false}
-                            inputClassName="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        <DateInput
+                            value={data.pi_hospfdate}
+                            onChange={(value) => handleDateChange('pi_hospfdate', value)}
                         />
                         <InputError message={errors.pi_hospfdate} className="mt-2" />
                     </div>
@@ -725,13 +721,9 @@ export default function PiForm({ client, className = '' }) {
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Date of Appointment
                                             </label>
-                                            <Datepicker
-                                                primaryColor={"indigo"}
-                                                value={{ startDate: data.pimd_dad, endDate: data.pimd_dad }}
-                                                onChange={(newValue) => handleDateChange('pimd_dad', newValue)}
-                                                asSingle={true}
-                                                useRange={false}
-                                                inputClassName="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            <DateInput
+                                                value={data.pimd_dad}
+                                                onChange={(value) => handleDateChange('pimd_dad', value)}
                                             />
                                             <InputError message={errors.pimd_dad} className="mt-2" />
                                         </div>

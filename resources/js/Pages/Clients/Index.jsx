@@ -2,10 +2,12 @@ import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '../Layouts/AppLayout';
 import { PlusIcon, EyeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import Pagination from '@/Components/Pagination';
+import CreateClientModal from '@/Components/CreateClientModal';
 import { useState } from 'react';
 
-export default function ClientsIndex({ clients, auth, filters }) {
+export default function ClientsIndex({ clients, auth, filters, preFilledFormValues, partners, users }) {
     const [search, setSearch] = useState(filters?.search || '');
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -37,13 +39,13 @@ export default function ClientsIndex({ clients, auth, filters }) {
                         </p>
                     </div>
                     <div className="mt-2 sm:mt-0">
-                        <Link
-                            href="/make"
+                        <button
+                            onClick={() => setShowCreateModal(true)}
                             className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                         >
                             <PlusIcon className="mr-2 h-5 w-5" />
                             Add Client
-                        </Link>
+                        </button>
                     </div>
                 </div>
 
@@ -152,12 +154,12 @@ export default function ClientsIndex({ clients, auth, filters }) {
                                                     </button>
                                                 )}
                                                 {!search && (
-                                                    <Link
-                                                        href="/make"
+                                                    <button
+                                                        onClick={() => setShowCreateModal(true)}
                                                         className="mt-2 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-500"
                                                     >
                                                         Create your first client
-                                                    </Link>
+                                                    </button>
                                                 )}
                                             </div>
                                         </td>
@@ -168,6 +170,22 @@ export default function ClientsIndex({ clients, auth, filters }) {
                     </div>
                     <Pagination links={clients.links} meta={clients.meta} />
                 </div>
+
+                {/* Create Client Modal */}
+                <CreateClientModal
+                    show={showCreateModal}
+                    onClose={() => setShowCreateModal(false)}
+                    preFilledFormValues={preFilledFormValues}
+                    partners={partners}
+                    users={users}
+                    auth={auth}
+                    onSuccess={() => {
+                        router.reload({ only: ['clients', 'preFilledFormValues', 'partners', 'users'] });
+                    }}
+                    onOpen={() => {
+                        router.reload({ only: ['preFilledFormValues'] });
+                    }}
+                />
             </div>
         </AppLayout>
     );

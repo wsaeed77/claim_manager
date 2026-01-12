@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { PlusIcon, PencilIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline';
 import NoteModal from '@/Components/NoteModal';
 import ConfirmDeleteModal from '@/Components/ConfirmDeleteModal';
+import toast from 'react-hot-toast';
 
 export default function NotesTab({ client, notes, users, auth }) {
     const [showNoteModal, setShowNoteModal] = useState(false);
@@ -45,8 +46,12 @@ export default function NotesTab({ client, notes, users, auth }) {
             router.get(`/delete_note?id=${noteToDelete.id}`, {}, {
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('Note deleted successfully!');
                     setShowDeleteModal(false);
                     setNoteToDelete(null);
+                },
+                onError: () => {
+                    toast.error('Failed to delete note.');
                 },
             });
         }

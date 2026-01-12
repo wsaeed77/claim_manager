@@ -5,6 +5,7 @@ import InputLabel from './InputLabel';
 import TextInput from './TextInput';
 import PrimaryButton from './PrimaryButton';
 import InputError from './InputError';
+import toast from 'react-hot-toast';
 
 export default function WitnessModal({ show, onClose, client, witness = null }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -72,8 +73,12 @@ export default function WitnessModal({ show, onClose, client, witness = null }) 
             router.post('/update_witness', updateData, {
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('Witness updated successfully!');
                     onClose();
                     reset();
+                },
+                onError: () => {
+                    toast.error('Failed to update witness. Please check the form for errors.');
                 },
             });
         } else {
@@ -81,8 +86,12 @@ export default function WitnessModal({ show, onClose, client, witness = null }) 
             post('/save_witness', {
                 preserveScroll: true,
                 onSuccess: () => {
+                    toast.success('Witness added successfully!');
                     onClose();
                     reset();
+                },
+                onError: () => {
+                    toast.error('Failed to add witness. Please check the form for errors.');
                 },
             });
         }

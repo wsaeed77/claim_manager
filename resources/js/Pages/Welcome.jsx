@@ -1,5 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 import AppLayout from './Layouts/AppLayout';
+import CreateClientModal from '@/Components/CreateClientModal';
 import {
     PlusIcon,
     UserGroupIcon,
@@ -9,14 +11,16 @@ import {
     BuildingOfficeIcon,
 } from '@heroicons/react/24/outline';
 
-export default function Welcome({ auth }) {
+export default function Welcome({ auth, preFilledFormValues, partners, users }) {
+    const [showCreateModal, setShowCreateModal] = useState(false);
     const quickActions = [
         {
             name: 'Create New Client',
             description: 'Add a new client and claim to the system',
-            href: '/make',
+            href: '#',
             icon: PlusIcon,
             color: 'bg-indigo-500',
+            onClick: () => setShowCreateModal(true),
         },
         {
             name: 'View All Clients',
@@ -73,12 +77,8 @@ export default function Welcome({ auth }) {
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {quickActions.map((action) => {
                         const Icon = action.icon;
-                        return (
-                            <Link
-                                key={action.name}
-                                href={action.href}
-                                className="group relative bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-indigo-300 transition-all duration-200"
-                            >
+                        const content = (
+                            <div className="group relative bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-indigo-300 transition-all duration-200 cursor-pointer">
                                 <div className="flex items-start">
                                     <div className={`${action.color} p-3 rounded-lg`}>
                                         <Icon className="h-6 w-6 text-white" />
@@ -92,6 +92,20 @@ export default function Welcome({ auth }) {
                                         </p>
                                     </div>
                                 </div>
+                            </div>
+                        );
+
+                        if (action.onClick) {
+                            return (
+                                <div key={action.name} onClick={action.onClick}>
+                                    {content}
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <Link key={action.name} href={action.href}>
+                                {content}
                             </Link>
                         );
                     })}
@@ -116,6 +130,22 @@ export default function Welcome({ auth }) {
                         <div className="mt-2 text-3xl font-bold text-gray-900">-</div>
                     </div>
                 </div>
+
+                {/* Create Client Modal */}
+                <CreateClientModal
+                    show={showCreateModal}
+                    onClose={() => setShowCreateModal(false)}
+                    preFilledFormValues={preFilledFormValues}
+                    partners={partners}
+                    users={users}
+                    auth={auth}
+                    onSuccess={() => {
+                        router.reload({ only: ['clients', 'preFilledFormValues', 'partners', 'users'] });
+                    }}
+                    onOpen={() => {
+                        router.reload({ only: ['preFilledFormValues'] });
+                    }}
+                />
             </div>
         </AppLayout>
     );
