@@ -18,23 +18,26 @@ class Payment extends Model
         'indate',
         'desc_de',
         'uto',
+        'uto_type',
+        'ufor',
         'due_date',
         'amount',
         'vat',
         'total',
-        'paid_date',
-        'paid_amount',
+        'date_paid',
+        'clawed_date',
+        'chq_no',
         'type',
     ];
 
     protected $casts = [
         'indate' => 'date',
         'due_date' => 'date',
-        'paid_date' => 'date',
+        'date_paid' => 'date',
+        'clawed_date' => 'date',
         'amount' => 'decimal:2',
         'vat' => 'decimal:2',
         'total' => 'decimal:2',
-        'paid_amount' => 'decimal:2',
     ];
 
     public function client(): BelongsTo

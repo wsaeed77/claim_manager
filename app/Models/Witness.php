@@ -13,11 +13,24 @@ class Witness extends Model
 
     protected $fillable = [
         'client_id',
-        'witness_name',
-        'witness_address',
-        'witness_phone',
-        'witness_email',
-        'witness_statement',
+        'witness_title',
+        'witness_id',
+        'witness_fname',
+        'witness_lname',
+        'witness_add',
+        'witness_city',
+        'witness_country',
+        'witness_postcode',
+        'witness_hometel',
+        'witness_officetel',
+        'witness_op',
+        'witness_opd',
+        'witness_type',
+        'witness_vehreg',
+        'witness_make',
+        'witness_model',
+        'witness_insco',
+        'witness_policno',
     ];
 
     public function client(): BelongsTo

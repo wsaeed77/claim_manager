@@ -233,4 +233,121 @@ class Client extends Model
         }
         return date('d-m-Y', strtotime($date));
     }
+
+    // Report Methods
+    public static function report($search)
+    {
+        $query = self::reportQuery($search);
+        return $query->get();
+    }
+
+    public static function reportCount($search)
+    {
+        $query = self::reportQuery($search);
+        return $query->count();
+    }
+
+    public static function reportQuery($search)
+    {
+        $query = self::query()
+            ->leftJoin('repairs as rep', 'rep.client_id', '=', 'clients.id')
+            ->leftJoin('hire as hire', 'hire.client_id', '=', 'clients.id')
+            ->leftJoin('inspections as inspect', 'inspect.client_id', '=', 'clients.id')
+            ->leftJoin('repairs as repair', 'repair.client_id', '=', 'clients.id')
+            ->leftJoin('solicitors as sol', 'sol.client_id', '=', 'clients.id')
+            ->leftJoin('accidents as acc', 'acc.client_id', '=', 'clients.id')
+            ->leftJoin('tp_insurances as tpI', 'tpI.client_id', '=', 'clients.id')
+            ->leftJoin('pimd as pi', 'pi.client_id', '=', 'clients.id')
+            ->leftJoin('agents as agent', 'agent.client_id', '=', 'clients.id')
+            ->leftJoin('hire_pcn as hirepcn', 'hirepcn.client_id', '=', 'clients.id')
+            ->leftJoin('vehicles as vehicle', 'vehicle.client_id', '=', 'clients.id')
+            ->leftJoin('insurances as insurance', 'insurance.client_id', '=', 'clients.id')
+            ->leftJoin('claims as cl', 'cl.client_id', '=', 'clients.id')
+            ->select('clients.*', 
+                'cl.claim_sdate', 'cl.claim_status', 'cl.claim_type', 'cl.claim_category', 'cl.case_advisor',
+                'sol.solicitors_name', 'sol.solicitors_reference', 'sol.solicitors_invstatus', 
+                'sol.solicitors_dateaccepted', 'sol.solicitors_invsdate', 'sol.solicitors_invpdate', 
+                'sol.solicitors_fhandler', 'sol.solicitors_dhandler', 'sol.solicitors_ate_cstatus',
+                'agent.agent_name',
+                'vehicle.vehicle_reg',
+                'hire.hire_provider', 'hire.hire_sdate', 'hire.hire_edate',
+                'repair.repair_repair', 'repair.repair_status', 'repair.repair_din', 'repair.repair_dauthor',
+                'inspect.inspect_status', 'inspect.inspect_eng', 'inspect.inspect_inst', 
+                'inspect.inspect_insptd', 'inspect.inspect_rrec', 'inspect.inspect_rsent',
+                'tpI.vdamage_liability', 'tpI.tpi_tpin',
+                'pi.pimd_exp', 'pi.pimd_venue', 'pi.pimd_dad', 'pi.pimd_dat', 'pi.pimd_status', 'pi.pimd_drr',
+                'acc.accident_date',
+                'insurance.insurance_name'
+            );
+
+        if (isset($search['period']) && $search['period'] == 'period') {
+            $startDate = date('Y-m-d', strtotime($search['start_date'] ?? '1970-01-01'));
+            $endDate = date('Y-m-d', strtotime($search['end_date'] ?? '2099-12-31'));
+            $query = $query
+                ->where('cl.claim_sdate', '>=', $startDate)
+                ->where('cl.claim_sdate', '<=', $endDate);
+        }
+
+        if (isset($search['claim_type']) && !isset($search['allClaimType'])) {
+            if (count($search['claim_type']) > 0) {
+                $query = $query->where(function ($q) use ($search) {
+                    foreach ($search['claim_type'] as $claim) {
+                        $q->orWhere('cl.claim_type', 'like', '%' . $claim . '%');
+                    }
+                    return $q;
+                });
+            }
+        }
+
+        if (isset($search['case_status']) && !isset($search['allCaseStatus'])) {
+            if (count($search['case_status']) > 0) {
+                $query = $query->where(function ($q) use ($search) {
+                    foreach ($search['case_status'] as $status) {
+                        $q->orWhere('cl.claim_status', 'like', '%' . $status . '%');
+                    }
+                    return $q;
+                });
+            }
+        }
+
+        if (isset($search['select']) && isset($search['group_by']) && $search['select'] != 'all') {
+            if ($search['group_by'] == 'solicitor') {
+                $query = $query->where('sol.solicitors_name', $search['select']);
+            } elseif ($search['group_by'] == 'agent') {
+                $query = $query->where('agent.agent_name', $search['select']);
+            } elseif ($search['group_by'] == 'insurer') {
+                $query = $query->where('insurance.insurance_name', $search['select']);
+            } elseif ($search['group_by'] == 'hire-company') {
+                $query = $query->where('hire.hire_provider', $search['select']);
+            } elseif ($search['group_by'] == 'repairer') {
+                $query = $query->where('repair.repair_repair', $search['select']);
+            } elseif ($search['group_by'] == 'claim-adviser') {
+                $query = $query->where('cl.case_advisor', $search['select']);
+            }
+        }
+
+        $orderBy = 'clients.case_no';
+        if (isset($search['order_by']) && $search['order_by'] == 'case_date') {
+            $orderBy = 'cl.claim_sdate';
+        }
+
+        $query = $query->orderBy($orderBy, 'DESC')
+            ->distinct();
+
+        return $query;
+    }
+
+    public static function partner($id)
+    {
+        if (empty($id)) {
+            return '';
+        }
+        $partner = Partner::find($id);
+        return $partner ? $partner->name : '';
+    }
+
+    public function latestNotes()
+    {
+        return $this->notes()->orderBy('id', 'DESC')->first();
+    }
 }

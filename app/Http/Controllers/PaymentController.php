@@ -44,16 +44,22 @@ class PaymentController extends Controller
             'indate' => 'nullable|date',
             'desc_de' => 'nullable|string|max:255',
             'uto' => 'nullable|integer',
+            'uto_type' => 'nullable|string|max:255',
+            'ufor' => 'nullable|string|max:255',
             'due_date' => 'nullable|date',
             'amount' => 'nullable|numeric',
             'vat' => 'nullable|numeric',
             'total' => 'nullable|numeric',
+            'date_paid' => 'nullable|date',
+            'clawed_date' => 'nullable|date',
+            'chq_no' => 'nullable|string|max:255',
             'type' => 'required|in:invoice,payout',
         ]);
 
         Payment::create($validated);
 
-        return redirect()->route('payments.invoice_list')
+        // Redirect back - Inertia will handle it correctly
+        return redirect()->back()
             ->with('success', 'Payment created successfully.');
     }
 
@@ -113,16 +119,21 @@ class PaymentController extends Controller
             'indate' => 'nullable|date',
             'desc_de' => 'nullable|string|max:255',
             'uto' => 'nullable|integer',
+            'uto_type' => 'nullable|string|max:255',
+            'ufor' => 'nullable|string|max:255',
             'due_date' => 'nullable|date',
             'amount' => 'nullable|numeric',
             'vat' => 'nullable|numeric',
             'total' => 'nullable|numeric',
+            'date_paid' => 'nullable|date',
+            'clawed_date' => 'nullable|date',
+            'chq_no' => 'nullable|string|max:255',
         ]);
 
         $payment = Payment::findOrFail($validated['id']);
         $payment->update($validated);
 
-        return redirect()->route('payments.invoice_list')
+        return redirect()->back()
             ->with('success', 'Payment updated successfully.');
     }
 

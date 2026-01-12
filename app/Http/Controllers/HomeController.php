@@ -6,10 +6,15 @@ use App\Models\Client;
 use App\Models\Partner;
 use App\Models\User;
 use App\Models\FileHandler;
+use App\Models\Claim;
+use App\Models\Agent;
+use App\Models\Solicitor;
+use App\Models\Driver;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -19,7 +24,9 @@ class HomeController extends Controller
             $client = Client::with([
                 'claim', 'accident', 'agent', 'vehicle', 'driver', 'employer',
                 'damage', 'insurance', 'hire', 'hireHd', 'hireMileage', 'hirePcn',
-                'repair', 'inspection', 'storage', 'solicitor', 'notes', 'witnesses'
+                'repair', 'inspection', 'storage', 'solicitor', 'notes', 'witnesses',
+                'tpVehicle', 'tpInsurance', 'tpdDriver', 'tps', 'pi', 'pimd', 
+                'pigp', 'pihospitals', 'rehab', 'payments.partner'
             ])->findOrFail($request->claimid);
 
             $caseOrders = Client::where('case_no', $client->case_no)->get();
@@ -192,6 +199,145 @@ class HomeController extends Controller
 
         return redirect()->route('home.index')
             ->with('success', 'Client deleted successfully.');
+    }
+
+    public function addclaim(Request $request)
+    {
+        return $this->store($request);
+    }
+
+    public function updateclaim(Request $request)
+    {
+        $data = $request->all();
+        
+        // Find client
+        $client = Client::findOrFail($data['claimid']);
+        
+        // Update client
+        $client->case_no = $data['case_no'];
+        $client->case_order = $data['case_order'];
+        $client->case_ref = $data['case_ref'] ?? '';
+        $client->client_title = $data['client_title'] ?? '';
+        $client->client_type = $data['client_type'] ?? '';
+        $client->client_fname = $data['client_fname'];
+        $client->client_lname = $data['client_lname'];
+        $client->client_address = $data['client_address'] ?? '';
+        $client->client_city = $data['client_city'] ?? '';
+        $client->client_country = $data['client_country'] ?? '';
+        $client->client_postcode = $data['client_postcode'] ?? '';
+        $client->client_hometel = $data['client_hometel'] ?? '';
+        $client->client_worktel = $data['client_worktel'] ?? '';
+        $client->client_mobile = $data['client_mobile'] ?? '';
+        $client->client_email = $data['client_email'] ?? '';
+        $client->client_cooperation = $data['client_cooperation'] ?? '';
+        $client->save();
+
+        // Helper function to parse date from dd-mm-yyyy to yyyy-mm-dd
+        $parseDate = function($dateStr) {
+            if (empty($dateStr)) return null;
+            $parts = explode('-', $dateStr);
+            if (count($parts) === 3 && strlen($parts[2]) === 4) {
+                // Assume dd-mm-yyyy format
+                return $parts[2] . '-' . $parts[1] . '-' . $parts[0];
+            }
+            return $dateStr;
+        };
+
+        // Update or create Claim
+        $claim = Claim::firstOrNew(['client_id' => $client->id]);
+        $claim->claim_dob = $parseDate($data['claim_dob'] ?? null);
+        $claim->claim_occupation = $data['claim_occupation'] ?? '';
+        $claim->claim_ni = $data['claim_ni'] ?? '';
+        $claim->claim_rni = $data['claim_rni'] ?? '';
+        $claim->claim_sdate = $parseDate($data['claim_sdate'] ?? null);
+        $claim->claim_ldate = $parseDate($data['claim_ldate'] ?? null);
+        $claim->claim_status = $data['claim_status'] ?? 'Pending';
+        $claim->claim_dreason = $data['claim_dreason'] ?? '';
+        $claim->case_advisor = $data['case_advisor'] ?? '';
+        $claim->claim_category = $data['claim_category'] ?? '';
+        $claim->claim_type = is_array($data['claim_type'] ?? null) 
+            ? implode(',', $data['claim_type']) 
+            : ($data['claim_type'] ?? '');
+        $claim->claim_odetails = $data['claim_odetails'] ?? '';
+        $claim->save();
+
+        // Update or create Agent
+        $agent = Agent::firstOrNew(['client_id' => $client->id]);
+        $agent->agent_name = $data['agent_name'] ?? '';
+        $agent->host_co = $data['host_co'] ?? '';
+        $agent->save();
+
+        // Update or create Solicitor
+        $solicitor = Solicitor::firstOrNew(['client_id' => $client->id]);
+        $solicitor->solicitors_name = $data['solicitors_name'] ?? '';
+        $solicitor->solicitors_datesent = $parseDate($data['solicitors_datesent'] ?? null);
+        $solicitor->solicitors_dateaccepted = $parseDate($data['solicitors_dateaccepted'] ?? null);
+        $solicitor->solicitors_reference = $data['solicitors_reference'] ?? '';
+        $solicitor->solicitors_fhandler = $data['solicitors_fhandler'] ?? '';
+        $solicitor->solicitors_email = $data['solicitors_email'] ?? '';
+        $solicitor->solicitors_tel = $data['solicitors_tel'] ?? '';
+        $solicitor->solicitors_invstatus = $data['solicitors_invstatus'] ?? 'Not Ready For invoice';
+        $solicitor->solicitors_invsdate = $parseDate($data['solicitors_invsdate'] ?? null);
+        $solicitor->solicitors_invpdate = $parseDate($data['solicitors_invpdate'] ?? null);
+        $solicitor->solicitors_notes = $data['solicitors_notes'] ?? '';
+        $solicitor->solicitors_providers = $data['solicitors_providers'] ?? '';
+        $solicitor->solicitors_dstatus = $data['solicitors_dstatus'] ?? 'Not Sent';
+        $solicitor->solicitors_dscdate = $parseDate($data['solicitors_dscdate'] ?? null);
+        $solicitor->solicitors_dssate = $parseDate($data['solicitors_dssate'] ?? null);
+        $solicitor->solicitors_dhandler = $data['solicitors_dhandler'] ?? '';
+        $solicitor->solicitors_leico = $data['solicitors_leico'] ?? '';
+        $solicitor->solicitors_ate_provider = $data['solicitors_ate_provider'] ?? '';
+        $solicitor->solicitors_ate_cstatus = $data['solicitors_ate_cstatus'] ?? '';
+        $solicitor->save();
+
+        // Update related tables for all claimants under the same case_no
+        $this->updateRelatedTablesForCase($client->case_no, $data, $client->id);
+
+        // Handle redirect with active tab
+        $redirectUrl = '/?claimid=' . $client->id;
+        if (isset($data['activetab']) && !empty($data['activetab'])) {
+            $redirectUrl .= $data['activetab'];
+        }
+
+        return redirect($redirectUrl)->with('success', 'Client updated successfully.');
+    }
+
+    private function updateRelatedTablesForCase($caseNo, $data, $mainClientId)
+    {
+        $clientsInCase = Client::where('case_no', $caseNo)->where('id', '!=', $mainClientId)->get();
+        
+        $parseDate = function($dateStr) {
+            if (empty($dateStr)) return null;
+            $parts = explode('-', $dateStr);
+            if (count($parts) === 3 && strlen($parts[2]) === 4) {
+                return $parts[2] . '-' . $parts[1] . '-' . $parts[0];
+            }
+            return $dateStr;
+        };
+
+        foreach ($clientsInCase as $caseClient) {
+            // Update Claim for other claimants
+            $claim = Claim::firstOrNew(['client_id' => $caseClient->id]);
+            $claim->claim_status = $data['claim_status'] ?? $claim->claim_status;
+            $claim->case_advisor = $data['case_advisor'] ?? $claim->case_advisor;
+            $claim->claim_category = $data['claim_category'] ?? $claim->claim_category;
+            $claim->claim_type = is_array($data['claim_type'] ?? null) 
+                ? implode(',', $data['claim_type']) 
+                : ($data['claim_type'] ?? $claim->claim_type);
+            $claim->save();
+
+            // Update Agent for other claimants
+            $agent = Agent::firstOrNew(['client_id' => $caseClient->id]);
+            $agent->agent_name = $data['agent_name'] ?? $agent->agent_name;
+            $agent->host_co = $data['host_co'] ?? $agent->host_co;
+            $agent->save();
+
+            // Update Solicitor for other claimants
+            $solicitor = Solicitor::firstOrNew(['client_id' => $caseClient->id]);
+            $solicitor->solicitors_name = $data['solicitors_name'] ?? $solicitor->solicitors_name;
+            $solicitor->solicitors_fhandler = $data['solicitors_fhandler'] ?? $solicitor->solicitors_fhandler;
+            $solicitor->save();
+        }
     }
 
     public function reminder(): Response

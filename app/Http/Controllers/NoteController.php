@@ -40,7 +40,7 @@ class NoteController extends Controller
             ...$validated,
         ]);
 
-        return redirect()->route('home.index', ['claimid' => $validated['client_id']])
+        return redirect()->back()
             ->with('success', 'Note added successfully.');
     }
 
@@ -68,11 +68,19 @@ class NoteController extends Controller
     {
         $validated = $request->validate([
             'id' => 'required|exists:notes,id',
-            'note' => 'required|string',
+            'client_id' => 'required|exists:clients,id',
+            'note_date' => 'required|date',
+            'note_time' => 'required|string',
+            'dealt_by' => 'required|string',
+            'importance' => 'nullable|string',
+            'method' => 'nullable|string',
+            'with' => 'nullable|string',
+            'name' => 'nullable|string',
+            'details' => 'required|string',
         ]);
 
         $note = Note::findOrFail($validated['id']);
-        $note->update(['note' => $validated['note']]);
+        $note->update($validated);
 
         return redirect()->back()->with('success', 'Note updated successfully.');
     }

@@ -13,7 +13,26 @@ class Hire extends Model
 
     protected $fillable = [
         'client_id',
-        // Add other fillable fields as needed
+        'hire_req',
+        'hire_alter',
+        'hire_ongoing',
+        'hire_provider',
+        'hire_ref',
+        'hire_sdate',
+        'hire_edate',
+        'hire_reg',
+        'hire_make',
+        'hire_model',
+        'hire_cc',
+        'hire_diveh',
+        'hire_knr',
+        'hire_cd',
+        'hire_vehicle_type',
+    ];
+
+    protected $casts = [
+        'hire_sdate' => 'date',
+        'hire_edate' => 'date',
     ];
 
     public function client(): BelongsTo
